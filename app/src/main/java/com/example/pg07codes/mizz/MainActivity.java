@@ -1,69 +1,122 @@
 package com.example.pg07codes.mizz;
 
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText tweet;
-    Button post;
-    ListView tweets;
-    ArrayList<String> tweetArray;
-    ArrayAdapter<String> tweetAdapter;
-
+    SeekBar timerBar;
+    TextView time;
+    Button play;
+    TextView timerText;
+    LinearLayout playArea;
+    TextView question;
+    int score=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // declaring vars here
-        tweet=findViewById(R.id.tweet);
-        post=findViewById(R.id.post);
-        tweets=findViewById(R.id.tweets);
-        tweetArray = new ArrayList<String>();
-        tweetAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,tweetArray);
 
-        tweets.setAdapter(tweetAdapter);
+        time=findViewById(R.id.time);
+        timerBar=findViewById(R.id.timerBar);
+        play=findViewById(R.id.play);
+        timerText=findViewById(R.id.timer);
+        playArea=findViewById(R.id.playArea);
+        question=findViewById(R.id.question);
 
-        tweets.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        // setting initial time
+        time.setText(timerBar.getProgress()*20+"seconds");
 
-            public boolean onItemLongClick(AdapterView<?> arg0, View v, int index, long arg3) {
-                tweetArray.remove(tweets.getItemAtPosition(index).toString());
-                Toast.makeText(MainActivity.this,"ITEM DELETED", Toast.LENGTH_SHORT).show();
-                tweetAdapter.notifyDataSetChanged();
-                return true;
+        // initially playarea is not showing up
+        playArea.setVisibility(View.INVISIBLE);
+
+
+        timerBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                if (progress == 0) {
+                    play.setEnabled(false);
+                } else {
+                    play.setEnabled(true);
+                }
+
+                time.setText(Integer.toString(progress*20)+"seconds");
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
-        tweets.setLongClickable(true);
+
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playArea.setVisibility(View.VISIBLE);
+                //refreshPlayArea();
+                setTimer(Integer.parseInt(time.getText().toString().replace("seconds","")));
+                play.setEnabled(false);
+
+            }
+        });
+
+
+
     }
 
-    public void addTweet(View v){
-        String x=tweet.getText().toString();
-        if(x.equals("")){
-            Toast.makeText(this, "empty tweet",Toast.LENGTH_SHORT).show();
-        }else{
-            add(x);
-            tweet.setText("");
-        }
+
+//    public void refreshPlayArea(){
+//        question.setText(getQuestion());
+//
+//
+//    }
+
+
+    public void setTimer(int time){
+
+        CountDownTimer timer=new CountDownTimer(time*1000, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                timerText.setText("Seconds Left: " + millisUntilFinished / 1000);
+            }
+
+            public void onFinish() {
+                timerText.setText("TIME IS UP !!!");
+            }
+        };
+
+        timer.start();
 
     }
 
-    public void add(String t){
-        tweetArray.add(t);
-        tweetAdapter.notifyDataSetChanged();
+
+    public String getQuestion(){
+        String ques;
+        int x=(int)(Math.random()*200);
+        int y=(int)(Math.random()*150);
+        ques=x+"+"+y;
+        return ques;
     }
+
+
 
 
 }
